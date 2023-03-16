@@ -54,5 +54,17 @@ namespace dotnet_rpg.Controllers
         {
             return Ok(await _characterService.AddCharacter(data));
         }
+
+        [HttpPut]
+        [Route("UpdateCharacter")]
+        public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> AddCharacter(UpdateCharacterDto data)
+        {
+            var result = await _characterService.UpdateCharacter(data);
+            if (result.Data is null)
+            {
+                return NotFound(result);
+            }
+            return Ok(result);
+        }
     }
 }
