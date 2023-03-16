@@ -66,5 +66,17 @@ namespace dotnet_rpg.Controllers
             }
             return Ok(result);
         }
+
+        [HttpDelete]
+        [Route("DeleteCharacter/{id}")]
+        public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> DeleteCharacter(int id)
+        {
+            var result = await _characterService.DeleteCharacter(id);
+            if (result.Data is null)
+            {
+                return NotFound(result);
+            }
+            return Ok(result);
+        }
     }
 }
