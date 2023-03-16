@@ -1,3 +1,4 @@
+using AutoMapper;
 using dotnet_rpg.Dtos.Character;
 using dotnet_rpg.Models;
 
@@ -5,6 +6,13 @@ namespace dotnet_rpg.Services.CharacterService
 {
     public class CharacterService : ICharacterService
     {
+        private IMapper _mapper;
+
+        public CharacterService(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
         private static List<Character> characters = new List<Character>{
             new Character(),
             new Character{ Id = 2,Name = "Apple"},
@@ -12,15 +20,17 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<List<GetCharacterDto>>> AddCharacter(AddCharacterDto data)
         {
             var rsp = new ServiceResponse<List<GetCharacterDto>>();
-            characters.Add(data);
-            rsp.Data = characters;
+            var character = _mapper.Map<Character>(data);
+            character.Id = characters.Max(c => c.Id) + 1;
+            characters.Add(character);
+            rsp.Data = _mapper.Map<List<GetCharacterDto>>(characters);
             return rsp;
         }
 
         public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var rsp = new ServiceResponse<List<GetCharacterDto>>();
-            rsp.Data = characters;
+            rsp.Data = _mapper.Map<List<GetCharacterDto>>(characters);
             return rsp;
         }
 
@@ -28,10 +38,7 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var rsp = new ServiceResponse<GetCharacterDto>();
             var character = characters.FirstOrDefault(c => c.Id == id);
-            rsp.Data = character;
-            // if (character is not null)
-            //     return rsp;
-            // throw new Exception("Character was not found");
+            rsp.Data = _mapper.Map<GetCharacterDto>(character);
             return rsp;
         }
     }

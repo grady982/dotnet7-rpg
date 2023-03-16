@@ -8,20 +8,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 // swagger open api setting
-builder.Services.AddSwaggerGen(); 
+builder.Services.AddSwaggerGen();
 
-// let web api to know that it has to use the CharacterService class whenever a controller wants
-// to inject the CharacterService
-// In essence, we registered the character service here
-// we create a new instance of the requested service for every request
+// registered the character service
 builder.Services.AddScoped<ICharacterService, CharacterService>();
-
-// provides a new  instance to every controller and to every service, even within the same request
-// builder.Services.AddTransient<ICharacterService, CharacterService>();
-
-// only one instance for every request
-// builder.Services.AddSingleton<ICharacterService, CharacterService>();
-
+// register auto mapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 var app = builder.Build();
 
