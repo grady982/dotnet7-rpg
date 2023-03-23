@@ -24,9 +24,12 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var rsp = new ServiceResponse<List<GetCharacterDto>>();
             var character = _mapper.Map<Character>(data);
-            character.Id = characters.Max(c => c.Id) + 1;
-            characters.Add(character);
-            rsp.Data = _mapper.Map<List<GetCharacterDto>>(characters);
+            _context.Character.Add(character);
+            // to make actual insert happen, we have to call the save method save changes
+            // this method write the changes to the database
+            await _context.SaveChangesAsync();
+            
+            rsp.Data = await _context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
             return rsp;
         }
 
@@ -52,7 +55,8 @@ namespace dotnet_rpg.Services.CharacterService
 
             try
             {
-                var character = characters.FirstOrDefault(c => c.Id == data.Id);
+                var character = await _context.Character.FirstOrDefaultAsync(c => c.Id == data.Id);
+                    //characters.FirstOrDefault(c => c.Id == data.Id);
                 if (character is null)
                 {
                     throw new Exception($"Character with Id ${data.Id} not found");
@@ -64,7 +68,9 @@ namespace dotnet_rpg.Services.CharacterService
                 character.Defense = data.Defense;
                 character.Intelligence = data.Intelligence;
                 character.Class = data.Class;
-
+                
+                // save changes to the database
+                await _context.SaveChangesAsync();
                 rsp.Data = _mapper.Map<GetCharacterDto>(character);
             }
             catch (System.Exception ex)
@@ -82,15 +88,17 @@ namespace dotnet_rpg.Services.CharacterService
 
             try
             {
-                var character = characters.FirstOrDefault(c => c.Id == id);
+                var character = await _context.Character.FirstOrDefaultAsync(c => c.Id == id);
+                    
                 if (character is null)
                 {
                     throw new Exception($"Character with Id ${id} not found");
                 }
 
-                characters.Remove(character);
+                _context.Character.Remove(character);
+                await _context.SaveChangesAsync();
 
-                rsp.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+                rsp.Data = await _context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync(); //characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
             }
             catch (System.Exception ex)
             {
